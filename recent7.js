@@ -1,9 +1,46 @@
-// recent7.js：照 rules.md 寫的版本
-// 輸入：records＝一串紀錄，每筆像 { log_date: '2026-11-23', minutes: 30 }（minutes 可能是 null）
-//       today＝今天的日期，例如 '2026-11-23'
-// 輸出：{ minutes: 總共幾分鐘, count: 幾筆 }
-// 格式說明在 README.md；要怎麼算看 rules.md。
-
 function recent7(records, today) {
-  throw new Error('還沒做');
+  const parts = today.split('-');
+  const year = Number(parts[0]);
+  const month = Number(parts[1]);
+  const day = Number(parts[2]);
+
+  const startDateObj = new Date(Date.UTC(year, month - 1, day - 6));
+  const startDate = [
+    String(startDateObj.getUTCFullYear()).padStart(4, '0'),
+    String(startDateObj.getUTCMonth() + 1).padStart(2, '0'),
+    String(startDateObj.getUTCDate()).padStart(2, '0')
+  ].join('-');
+
+  let totalMinutes = 0;
+  let count = 0;
+  let hasMissingMinutes = false;
+  let hasBigSession = false;
+
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
+    if (record.log_date < startDate || record.log_date > today) {
+      continue;
+    }
+
+    count += 1;
+
+    if (record.minutes === null) {
+      hasMissingMinutes = true;
+    } else {
+      totalMinutes += record.minutes;
+      if (record.minutes >= 180) {
+        hasBigSession = true;
+      }
+    }
+  }
+
+  let minutesResult = hasMissingMinutes ? 'X' : totalMinutes;
+  if (hasBigSession) {
+    minutesResult = minutesResult + ' 絕對是大拇指的啦';
+  }
+
+  return {
+    minutes: minutesResult,
+    count: count
+  };
 }
